@@ -1,0 +1,118 @@
+version: "3"
+services:
+  mysql:
+    image: mysql:8.0-bookworm
+    restart: always
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=mysql_node
+      - MYSQL_USER=mysql
+      - MYSQL_PASSWORD=mysql
+    networks:
+      - db-network
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-u",
+          "mysql",
+          "-pmysql",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  adminer:
+    image: adminer:4.8.0
+    restart: always
+    ports:
+      - 8080:8080
+    networks:
+      - db-network
+
+  postgresql:
+    image: postgres:16
+    restart: always
+    volumes:
+      - ./data/postgresql:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_DB=psql
+      - POSTGRES_USER=psql
+      - POSTGRES_PASSWORD=psql
+    networks:
+      - db-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  mongodb:
+    image: mongo:5.0.29-focal
+    restart: always
+    volumes:
+      - ./data/mongodb:/data/db
+    ports:
+      - 27017:27017
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=root
+    networks:
+      - db-network
+    healthcheck:
+      test: ["CMD-SHELL", "mongo --eval 'db.stats()'"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  mongo-express:
+    image: mongo-express:1.0.2-20-alpine3.19
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=root
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=root
+      - ME_CONFIG_MONGODB_SERVER=mongodb
+    networks:
+      - db-network
+
+  redis:
+    image: redis:alpine3.20
+    restart: always
+    volumes:
+      - ./data/redis:/data
+    ports:
+      - 6379:6379
+    command: ["redis-server", "--appendonly", "yes"]
+    networks:
+      - db-network
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    restart: always
+    ports:
+      - 8082:8081
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    networks:
+      - db-network
+
+networks:
+  db-network:
+    driver: bridge
