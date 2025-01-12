@@ -1,0 +1,27 @@
+services:
+  mysql:
+    image: mysql:8.0-bookworm
+    restart: always
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=mysql_node
+      - MYSQL_USER=mysql
+      - MYSQL_PASSWORD=mysql
+    networks:
+      - db-network
+
+  adminer:
+    image: adminer:4.8.0
+    restart: always
+    ports:
+      - 8080:8080
+    networks:
+      - db-network
+
+networks:
+  db-network:
+    driver: bridge
