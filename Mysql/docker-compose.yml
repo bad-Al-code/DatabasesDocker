@@ -3,7 +3,7 @@ services:
     image: mysql:8.0-bookworm
     restart: always
     volumes:
-      - ./data/mysql:/var/lib/mysql
+      - mysql_data:/var/lib/mysql
     ports:
       - 3306:3306
     environment:
@@ -27,7 +27,7 @@ services:
     container_name: mysql-backup
     restart: always
     volumes:
-      - ./backups/mysql:/backups
+      - mysql_backups:/backups
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - MYSQL_DATABASE=${MYSQL_DATABASE}
@@ -55,3 +55,7 @@ services:
 networks:
   db-network:
     driver: bridge
+
+volumes:
+  mysql_data:
+  mysql_backups:
