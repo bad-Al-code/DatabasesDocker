@@ -1,7 +1,7 @@
 services:
   mysql:
     image: mysql:8.0-bookworm
-    restart: always
+    restart: unless-stopped
     volumes:
       - mysql_data:/var/lib/mysql
     ports:
@@ -13,14 +13,29 @@ services:
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
     networks:
       - db-network
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-u",
+          "${MYSQL_USER}",
+          "-p${MYSQL_PASSWORD}",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     deploy:
       resources:
         limits:
-          cpus: "1.5"
-          memory: "1.5G"
+          cpus: "2.0"
+          memory: "2G"
         reservations:
           cpus: "0.5"
-          memory: "512M"
+          memory: "1G"
 
   mysql_backup:
     image: mysql:8.0-bookworm
@@ -43,6 +58,14 @@ services:
       - mysql
     networks:
       - db-network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: "512M"
+        reservations:
+          cpus: "0.2"
+          memory: "256M"
 
   adminer:
     image: adminer:4.8.0
