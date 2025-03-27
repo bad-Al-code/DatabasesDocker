@@ -8,10 +8,10 @@ services:
     ports:
       - 3306:3306
     environment:
-      - MYSQL_ROOT_PASSWORD=root
-      - MYSQL_DATABASE=mysql_node
-      - MYSQL_USER=mysql
-      - MYSQL_PASSWORD=mysql
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
     networks:
       - db-network
     healthcheck:
@@ -46,9 +46,9 @@ services:
     ports:
       - 5432:5432
     environment:
-      - POSTGRES_DB=psql
-      - POSTGRES_USER=psql
-      - POSTGRES_PASSWORD=psql
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     networks:
       - db-network
     healthcheck:
@@ -65,8 +65,8 @@ services:
     ports:
       - 27017:27017
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=root
-      - MONGO_INITDB_ROOT_PASSWORD=root
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
     networks:
       - db-network
     healthcheck:
@@ -83,9 +83,9 @@ services:
     ports:
       - 8081:8081
     environment:
-      - ME_CONFIG_MONGODB_ADMINUSERNAME=root
-      - ME_CONFIG_MONGODB_ADMINPASSWORD=root
-      - ME_CONFIG_MONGODB_SERVER=mongodb
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=${ME_CONFIG_MONGODB_ADMINUSERNAME}
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=${ME_CONFIG_MONGODB_ADMINPASSWORD}
+      - ME_CONFIG_MONGODB_SERVER=${ME_CONFIG_MONGODB_SERVER}
     networks:
       - db-network
 
@@ -111,7 +111,7 @@ services:
     ports:
       - 8082:8081
     environment:
-      - REDIS_HOSTS=local:redis:6379
+      - REDIS_HOSTS=${REDIS_HOSTS}
     networks:
       - db-network
 
@@ -124,8 +124,8 @@ services:
     volumes:
       - chroma_data:/chroma/.chroma
     environment:
-      - IS_PERSISTENT=TRUE
-      - CHROMA_DB_DIR=/chroma/.chroma
+      - IS_PERSISTENT=${IS_PERSISTENT}
+      - CHROMA_DB_DIR=${CHROMA_DB_DIR}
     networks:
       - db-network
     healthcheck:
