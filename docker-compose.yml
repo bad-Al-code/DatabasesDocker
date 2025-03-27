@@ -113,6 +113,20 @@ services:
     networks:
       - db-network
 
+  chromadb:
+    image: chromadb/chroma:0.6.4.dev419
+    container_name: chroma-db
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - chroma_data:/chroma/.chroma
+    environment:
+      - IS_PERSISTENT=TRUE
+      - CHROMA_DB_DIR=/chroma/.chroma
+    networks:
+      - db-network
+
   dense-index:
     image: ghcr.io/pinecone-io/pinecone-index:latest
     container_name: dense-index
@@ -148,6 +162,7 @@ services:
       - db-network
 
 volumes:
+  chroma_data:
   dense_index_data:
   sparse_index_data:
 
