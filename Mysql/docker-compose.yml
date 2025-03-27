@@ -13,6 +13,14 @@ services:
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
     networks:
       - db-network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.5"
+          memory: "1.5G"
+        reservations:
+          cpus: "0.5"
+          memory: "512M"
 
   adminer:
     image: adminer:4.8.0
