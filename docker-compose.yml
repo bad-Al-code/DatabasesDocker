@@ -166,6 +166,6 @@ volumes:
   dense_index_data:
   sparse_index_data:
 
-detworks:
+networks:
   db-network:
     driver: bridge
