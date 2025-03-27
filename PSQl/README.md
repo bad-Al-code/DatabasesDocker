@@ -5,21 +5,36 @@ This repository contains a Docker Compose configuration for setting up a Postgre
 - PostgreSQL: A PostgreSQL database instance.
 - Adminer: A lightweight database management tool for managing the PostgreSQL database through a web interface.
 
+## Features
+
+- Persistent data storage
+- Automatic daily backups (retained for 14 days)
+- Resource-optimized container configuration
+- Health check to ensure PostgreSQL readiness
+- Web-based database management via Adminer
+
 ### Requirements
 
 - [Docker](https://docs.docker.com/engine/install/)
 
 ### Setup and Usage
 
-1. **Customize Environment Variables (Optional)**
-   You can modify the default environment varibales for PostgreSQL (database name, username and password) in the `docker-compose.yml` file:
+1. **Configure Environment Variables**
+   Before starting, create a `.env` file in the project root and define the required environment
+   variables:
 
-```yml
-environment:
-  - POSTGRES_DB=your_database_name # Change this to your preferred DB name
-  - POSTGRES_USER=your_user_name # Change this to your preferred username
-  - POSTGRES_PASSWORD=your_password # Change this to your preferred password
+```bash
+# PostgreSQL Configuration
+POSTGRES_DB=my_database
+POSTGRES_USER=my_user
+POSTGRES_PASSWORD=my_password
+POSTGRES_PORT=5432
+
+# Backup Configuration
+BACKUP_RETENTION_DAYS=14
 ```
+
+Alternatively, you can use provided `.env.sample` as a reference.
 
 2. **Start the Containers**
    In the project directory where your `docker-compose.yml` is located, run the following command to start the container:
@@ -102,7 +117,10 @@ docker compose down
 This command stops and removes the containers but preserves your data in the `./data/postgresql` directory on your local machine.
 
 7. **Persistent Data**
-   The postgresql service uses a volume to store its data persistently. Data is saved in the `./data/postgresql` directory on your host machine. This ensures your database persists even if the containers are stopped or removed.
+
+   - PostgreSQL data is stored in: ./data/postgresql/
+   - Backups are stored in: ./backups/postgresql/
+   - Data persists even after stopping or restarting containers.
 
 8. **Restarting the container**
    If you need to restart the containers, use the following command:
