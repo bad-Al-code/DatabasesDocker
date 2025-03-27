@@ -11,6 +11,9 @@ services:
     ports:
       - "5081:5081"
     platform: linux/amd64
+    volumes:
+      - dense_index_data:/data
+
   sparse-index:
     image: ghcr.io/pinecone-io/pinecone-index:latest
     container_name: sparse-index
@@ -23,3 +26,9 @@ services:
     ports:
       - "5082:5082"
     platform: linux/amd64
+    volumes:
+      - sparse_index_data:/data
+
+volumes:
+  dense_index_data:
+  sparse_index_data:
