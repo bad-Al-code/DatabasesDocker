@@ -13,12 +13,52 @@ The following services are inclued:
 - Mongo Express (Web-based MongoDB admin interface)
 - Redis
 - Redis Commander (Redis management tool)
+- ChromaDB (Vector database)
+- Pinecone Indexes (Dense & Sparse Indexing)
+
+# Features
+
+- ✅ Daily automatic backups for MySQL, PostgreSQL, and MongoDB
+- ✅ Auto-cleanup of backups older than 14 days
+- ✅ Optimized resource allocation for better performance
+- ✅ Health checks for all database services
+- ✅ Web-based database management
 
 ## Usage
 
 #### Prerequisites
 
 - Docker
+- Create a `.env` file in the project root and configure it as shown below.
+
+### Environment Variables
+
+Copy the following into your .env file and update values as needed:
+
+```bash
+# MySQL Configuration
+MYSQL_ROOT_PASSWORD=root
+MYSQL_DATABASE=my_database
+MYSQL_USER=my_user
+MYSQL_PASSWORD=my_password
+
+# PostgreSQL Configuration
+POSTGRES_DB=my_database
+POSTGRES_USER=my_user
+POSTGRES_PASSWORD=my_password
+
+# MongoDB Configuration
+MONGO_INITDB_ROOT_USERNAME=mongo_user
+MONGO_INITDB_ROOT_PASSWORD=mongo_password
+
+# Redis Configuration
+REDIS_HOSTS=redis
+
+# ChromaDB Configuration
+IS_PERSISTENT=true
+CHROMA_DB_DIR=/chroma/.chroma
+
+```
 
 #### Running services
 
@@ -42,7 +82,7 @@ To stop all services:
 docker compose down
 ```
 
-## Connections
+## Database Connections
 
 #### PostgreSQL
 
@@ -63,6 +103,14 @@ mysql -h 127.0.0.1 -P 3306 -u root -p
 ```
 
 Enter the root password when prompted (the password specified for MYSQL_ROOT_PASSWORD in your Docker Compose file, which is root in your case). Then, you can create databases and perform administrative tasks.
+
+## Backup System
+
+Backups are stored in the ./backups/ directory and cleaned up automatically every 14 days.
+
+- MySQL: ./backups/mysql/
+- PostgreSQL: ./backups/postgresql/
+- MongoDB: ./backups/mongodb/
 
 ## Configuration
 
