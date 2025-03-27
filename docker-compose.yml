@@ -4,7 +4,7 @@ services:
     image: mysql:8.0-bookworm
     restart: always
     volumes:
-      - ./data/mysql:/var/lib/mysql
+      - mysql_data:/var/lib/mysql
     ports:
       - 3306:3306
     environment:
@@ -42,7 +42,7 @@ services:
     image: postgres:16
     restart: always
     volumes:
-      - ./data/postgresql:/var/lib/postgresql/data
+      - postgresql_data:/var/lib/postgresql/data
     ports:
       - 5432:5432
     environment:
@@ -61,7 +61,7 @@ services:
     image: mongo:5.0.29-focal
     restart: always
     volumes:
-      - ./data/mongodb:/data/db
+      - mongodb_data:/data/db
     ports:
       - 27017:27017
     environment:
@@ -91,7 +91,7 @@ services:
     image: redis:alpine3.20
     restart: always
     volumes:
-      - ./data/redis:/data
+      - redis_data:/data
     ports:
       - 6379:6379
     command: ["redis-server", "--appendonly", "yes"]
@@ -162,6 +162,10 @@ services:
       - db-network
 
 volumes:
+  mysql_data:
+  postgresql_data:
+  mongodb_data:
+  redis_data:
   chroma_data:
   dense_index_data:
   sparse_index_data:
