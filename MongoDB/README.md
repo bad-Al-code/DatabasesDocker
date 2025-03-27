@@ -1,9 +1,20 @@
-# Redis And Redis Commander
+# MongoDB
 
 This repository contains a Docker Compose configuration for setting up a MongoDB container along with a Mongo Express container for database management. The setup includes:
 
-- **MongoDB**: A MongoDB database instance with authentication enabled.
-- **Mongo Express**: A web-based interface for managing MongoDB.
+## Features
+
+- MongoDB with authentication enabled
+- Mongo Express web-based UI for managing the database
+- Persistent storage for MongoDB data
+- Automated daily backups with 14-day retention
+- Health checks for MongoDB service
+- MongoDB with authentication enabled
+- Mongo Express web-based UI for managing the database
+- Persistent storage for MongoDB data
+- Automated daily backups with 14-day retention
+- Health checks for MongoDB service
+- Optimized resource allocation Optimized resource allocation
 
 ### Requirements
 
@@ -11,17 +22,21 @@ This repository contains a Docker Compose configuration for setting up a MongoDB
 
 ### Setup and Usage
 
-1. **Customize Environment Variables (Optional)**
-   You can modify the default environment variable for MongoDB and Mongo Express in the `docker-compose.yml` file:
+1. **Configure Environment Variables**
+   Before running the containers, make sure you have a `.env` file in your project root .
 
 ```bash
-environment:
-  - MONGO_INITDB_ROOT_USERNAME=rootuser  # Change to your desired MongoDB root username
-  - MONGO_INITDB_ROOT_PASSWORD=rootpass  # Change to your desired MongoDB root password
+# MongoDB Configuration
+MONGODB_USER=rootuser
+MONGODB_PASSWORD=rootpass
+MONGODB_DATABASE=my_database
+MONGODB_PORT=27017
 
-mongo-express:
-  - ME_CONFIG_MONGODB_ADMINUSERNAME=rootuser  # Ensure this matches MongoDB root username
-  - ME_CONFIG_MONGODB_ADMINPASSWORD=rootpass  # Ensure this matches MongoDB root password
+# Mongo Express Configuration
+MONGO_EXPRESS_PORT=8081
+
+# Backup Configuration
+BACKUP_RETENTION_DAYS=14
 ```
 
 2. **Start the Containers**
@@ -33,17 +48,19 @@ docker-compose up -d
 
 This will:
 
-- Download the necessary Docker images (`redis:alpine3.20` and `rediscommander/redis-commander:latest`) if not already present.
-- Start the MongoDB container with persistence enabled.
-- Start the MongoDB Express container for web-based management.
+- Pull the latest MongoDB and Mongo Express images (if not already available).
+- Start MongoDB with authentication and persistent storage.
+- Start Mongo Express for web-based database management.
+- Set up automated backups for MongoDB.
 
 3. **Access the Service**
 
 **MongoDB**
-The MongoDB service will be running on port 27017 of your host machine. You can connect to it using any MongoDB client (e.g., `mongo`, a library in your application, or MongoDB Compass) using the following connection details:
 
-- Host: `localhost`
-- Port: `27017`
+- Host: localhost
+- Port: 27017
+- Username: rootuser (or value from .env)
+- Password: rootpass (or value from .env)
 
 **Mongo Express**
 To access the Mongo Express web interface, open your browser and go to:
@@ -52,19 +69,28 @@ To access the Mongo Express web interface, open your browser and go to:
 http://localhost:8081
 ```
 
-You can now use the Mongo Express interface to manage your MongoDB instance. It will be pre-configured to connect to the MongoDB container via the `mongodb` hostname.
+**Login Details**:
+
+- Username: rootuser (from .env)
+- Password: rootpass (from .env)
 
 4. **Running MongoDB Commands Inside the MongoDB Container**
 
-To run MongoDB commands inside the MongoDB container, you can use the following Docker command to access the Mongo shell:
+To open the MongoDB shell inside the container:
 
 ```bash
-docker-compose exec mongodb mongo -u rootuser -p rootpass
+docker compose exec mongodb mongo -u $MONGODB_USER -p $MONGODB_PASSWORD
 ```
 
-This will open the `mongo` shell connected to the MongoDB container with authentication. From here, you can run any MongoDB commands (e.g., db.stats(), show collections, etc.).
+Once inside, you can run MongoDB queries such as:
 
-To exit the `redis-cli`, simply type:
+```bash
+show databases;
+use my_database;
+db.stats();
+```
+
+To exit the shell, type:
 
 ```bash
 exit
@@ -94,13 +120,14 @@ docker compose down
 This command stops and removes the containers but preserves your data in the `./data/mongodb/` directory on your local machine.
 
 7. **Persistent Data**
-   The MongoDB service uses a volume to store its data persistently. Data is saved in the `./data/mongodb` directory on your host machine. This ensures your MongoDB data persists even if the containers are stopped or removed.
 
-8. **Restarting the container**
-   If you need to restart the containers, use the following command:
+- MongoDB data is persistently stored in the ./data/mongodb/ directory.
+- Automated daily backups are stored in ./backups/mongodb/ and deleted after 14 days.
+
+If you need to manually trigger a backup, run:
 
 ```bash
-docker compose restart
+docker compose exec mongodb-backup sh -c "mongodump --host mongodb --username $MONGODB_USER --password $MONGODB_PASSWORD --out /backups/mongodb-manual-$(date +%F)"
 ```
 
 ### Troubleshooting
