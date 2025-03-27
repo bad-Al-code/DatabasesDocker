@@ -37,6 +37,23 @@ services:
         reservations:
           cpus: "0.5"
           memory: "512M"
+  mysql_backup:
+    image: mysql:8.0-bookworm
+    container_name: mysql-backup
+    restart: always
+    volumes:
+      - ./backups/mysql:/backups
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    command: >
+      sh -c "while true; do
+        mysqldump -h mysql -u${MYSQL_USER} -p${MYSQL_PASSWORD} ${MYSQL_DATABASE} > /backups/mysql-$(date +%F).sql;
+        sleep 86400;
+      done"
+    depends_on:
+      - mysql
+    networks:
+      - db-network
 
   adminer:
     image: adminer:4.8.0
@@ -73,6 +90,26 @@ services:
           cpus: "0.5"
           memory: "512M"
 
+  postgresql-backup:
+    image: postgres:16
+    container_name: postgresql-backup
+    restart: always
+    volumes:
+      - ./backups/postgresql:/backups
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    command: >
+      sh -c "while true; do
+        pg_dump -h postgresql -U ${POSTGRES_USER} -F c -b -v -f /backups/postgresql-$(date +%F).dump;
+        sleep 86400;
+      done"
+    depends_on:
+      - postgresql
+    networks:
+      - db-network
+
   mongodb:
     image: mongo:5.0.29-focal
     restart: always
@@ -102,6 +139,24 @@ services:
         reservations:
           cpus: "0.3"
           memory: "512M"
+  mongodb-backup:
+    image: mongo:5.0.29-focal
+    container_name: mongodb-backup
+    restart: always
+    volumes:
+      - ./backups/mongodb:/backups
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+    command: >
+      sh -c "while true; do
+        mongodump --host mongodb --username ${MONGO_INITDB_ROOT_USERNAME} --password ${MONGO_INITDB_ROOT_PASSWORD} --out /backups/mongodb-$(date +%F);
+        sleep 86400;
+      done"
+    depends_on:
+      - mongodb
+    networks:
+      - db-network
 
   mongo-express:
     depends_on:
