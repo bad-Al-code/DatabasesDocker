@@ -1,41 +1,76 @@
 version: "3"
+
 services:
   mongodb:
     image: mongo:5.0.29-focal
     container_name: mongodb
-    restart: always
+    restart: unless-stopped
     volumes:
-      - ./data/mongodb:/data/db
+      - mongodb-data:/data/db
     ports:
-      - 27017:27017
+      - "${MONGODB_PORT:-27017}:27017"
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=rootuser
-      - MONGO_INITDB_ROOT_PASSWORD=rootpass
+      - MONGO_INITDB_ROOT_USERNAME=${MONGODB_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_PASSWORD}
     networks:
       - db-network
     healthcheck:
       test:
         [
           "CMD-SHELL",
-          "mongo --username root --password $${MONGO_INITDB_ROOT_PASSWORD} --eval 'db.stats()'",
+          "mongosh --username $${MONGO_INITDB_ROOT_USERNAME} --password $${MONGO_INITDB_ROOT_PASSWORD} --eval 'db.runCommand({ ping: 1 })'",
         ]
       interval: 30s
       timeout: 10s
       retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: "2GB"
+        reservations:
+          cpus: "1"
+          memory: "1GB"
 
   mongo-express:
     image: mongo-express:1.0.2-20-alpine3.19
     container_name: mongo-express
-    restart: always
+    restart: unless-stopped
     ports:
-      - 8081:8081
+      - "${MONGO_EXPRESS_PORT:-8081}:8081"
     environment:
-      - ME_CONFIG_MONGODB_ADMINUSERNAME=rootuser
-      - ME_CONFIG_MONGODB_ADMINPASSWORD=rootuser
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=${MONGODB_USER}
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=${MONGODB_PASSWORD}
       - ME_CONFIG_MONGODB_SERVER=mongodb
+    networks:
+      - db-network
+
+  mongodb-backup:
+    image: mongo:5.0.29-focal
+    container_name: mongodb-backup
+    restart: unless-stopped
+    volumes:
+      - mongodb-backups:/backups
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGODB_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_PASSWORD}
+      - MONGODB_DATABASE=${MONGODB_DATABASE}
+      - BACKUP_RETENTION_DAYS=14
+    command: >
+      sh -c "while true; do
+        mongodump --host mongodb --username $${MONGO_INITDB_ROOT_USERNAME} --password $${MONGO_INITDB_ROOT_PASSWORD} --out /backups/mongodb-$(date +%F);
+        find /backups -type d -name 'mongodb-*' -mtime +$${BACKUP_RETENTION_DAYS} -exec rm -rf {} \;
+        sleep 86400;
+      done"
+    depends_on:
+      - mongodb
     networks:
       - db-network
 
 networks:
   db-network:
     driver: bridge
+
+volumes:
+  mongodb-data:
+  mongodb-backups:
