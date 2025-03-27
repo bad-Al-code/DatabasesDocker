@@ -126,6 +126,11 @@ services:
       - CHROMA_DB_DIR=/chroma/.chroma
     networks:
       - db-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/heartbeat"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   dense-index:
     image: ghcr.io/pinecone-io/pinecone-index:latest
@@ -143,6 +148,11 @@ services:
       - dense_index_data:/data
     networks:
       - db-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5081"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   sparse-index:
     image: ghcr.io/pinecone-io/pinecone-index:latest
@@ -160,6 +170,11 @@ services:
       - sparse_index_data:/data
     networks:
       - db-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5082"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
 volumes:
   mysql_data:
