@@ -1,0 +1,44 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: redis-backup-cronjob
+spec:
+  schedule: "0 3 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: redis-backup
+              image: alpine:latest
+              command: ["/bin/sh", "-c"]
+              args:
+                - |
+                  echo "Starting Redis backup job..."
+                  BACKUP_FILE="/backups/redis-$(date +%F).rdb"
+                  echo "Copying /data/dump.rdb to ${BACKUP_FILE}..."
+                  cp /data/dump.rdb "${BACKUP_FILE}"
+                  if [ $? -eq 0 ]; then
+                    echo "Copy successful."
+                  else
+                    echo "ERROR: Failed to copy dump.rdb!"
+                    exit 1
+                  fi
+
+                  echo "Cleaning up backups older than 14 days..."
+                  find /backups -type f -name '*.rdb' -mtime +14 -print -exec rm {} \;
+                  echo "Backup job finished."
+              volumeMounts:
+                - name: redis-data-volume
+                  mountPath: /data
+                  readOnly: true
+                - name: redis-backup-volume
+                  mountPath: /backups
+          volumes:
+            - name: redis-data-volume
+              persistentVolumeClaim:
+                claimName: redis-data-pvc
+            - name: redis-backup-volume
+              persistentVolumeClaim:
+                claimName: redis-backup-pvc
+          restartPolicy: OnFailure
