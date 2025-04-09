@@ -63,3 +63,19 @@ spec:
         - name: redis-data-storage
           persistentVolumeClaim:
             claimName: redis-data-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+spec:
+  selector:
+    app: redis
+  type: ClusterIP
+  ports:
+    - name: redis
+      protocol: TCP
+      port: 6379
+      targetPort: 6379
+---
+
