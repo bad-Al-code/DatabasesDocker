@@ -1,4 +1,4 @@
-# PostgreSQL and Adminer
+# PostgreSQL
 
 This repository contains a Docker Compose configuration for setting up a PostgreSQL container along with an Adminer container for database management. The setup includes:
 
