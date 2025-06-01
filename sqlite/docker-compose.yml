@@ -1,0 +1,25 @@
+services:
+  sqlite:
+    image: keinos/sqlite3:3.49.2
+    container_name: sqlite-db
+    volumes:
+      - sqlite_data:/data
+    working_dir: /data
+    entrypoint: ["tail", "-f", "/dev/null"]
+    networks:
+      - db-network
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: "512MB"
+        reservations:
+          cpus: "0.5"
+          memory: "256MB"
+
+volumes:
+  sqlite_data:
+
+networks:
+  db-network:
+    driver: bridge
