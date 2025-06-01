@@ -1,7 +1,7 @@
 version: "3"
 services:
   postgresql:
-    image: postgres:16
+    image: postgres:17.5
     restart: unless-stopped
     volumes:
       - postgresql_data:/var/lib/postgresql/data
@@ -28,7 +28,7 @@ services:
           memory: "1GB"
 
   postgresql-backup:
-    image: postgres:16
+    image: postgres:17.5
     container_name: postgresql-backup
     restart: unless-stopped
     volumes:
